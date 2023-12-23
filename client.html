@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Generator rymów</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</head>
+<body>
+        
+        <p>
+            <label>Podaj słowo:</label>
+            <input type="text" id="word">
+        <p>
+        <p>
+            <label>Podaj liczbę sylab do rymowanych słów:</label>
+            <input type="range" id="syllables" value=1 min=1 max=10 oninput="document.getElementById('syllables_label').innerHTML = this.value" />
+            <label id="syllables_label">1</label>
+        </p>
+
+        <button id="send" style="width: 300px">Wyświetl rymy</button><br><br>
+        <div id='rhymes'></div>
+    
+    <script>
+        $("#send").click(function (event) {
+            event.preventDefault();
+            var word = document.getElementById("word").value;
+            var syllables_count = document.getElementById("syllables").value;
+            if (word == "") {
+                alert("Wpisz słowo.");
+            }
+            else{
+                message = {word: word, syllables_count: syllables_count};
+                $.post("http://127.0.0.1:5000/rhyme", JSON.stringify(message), function(response) {
+                    var scoreboard = response.scoreboard;
+                    var rhyme_section = "";
+                    if (scoreboard.length == 0){
+                        rhyme_section = "Brak rymów";
+                    }
+                    else{
+                        rhyme_section = "<table><tr><th>Rym</th><th>Dokładność</th></tr>"
+                        for (var i=0; i<scoreboard.length; i++){
+                            rhyme_section += "<tr><td>" + scoreboard[i]["word"] + "</td><td>" + scoreboard[i]["score"] + "</td></td>";
+                        }
+                        rhyme_section += "</table>";
+                    }
+                    document.getElementById("rhymes").innerHTML = rhyme_section;
+                });
+            }
+            
+        });
+    </script>    
+
+
+</body>
+</html>
